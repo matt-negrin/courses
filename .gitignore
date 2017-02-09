@@ -16,3 +16,4 @@ deeplearning1/nbs/data/kag_dogscats/train/*
 deeplearning1/nbs/data/kag_dogscats/valid/*
 deeplearning1/nbs/data/kag_dogscats/test/*
 */data/*
+deeplearning1/nbs/data/statefarm/*
