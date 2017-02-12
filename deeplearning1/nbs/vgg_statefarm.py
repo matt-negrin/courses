@@ -17,6 +17,52 @@ from keras.layers.pooling import GlobalAveragePooling2D
 from keras.optimizers import SGD, RMSprop, Adam
 from keras.preprocessing import image
 
+def mn_valid(validation_frac=.3, local=False):
+    if local:
+        path = '/Users/matthew.negrin/deeplearning/courses/deeplearning1/nbs/data/statefarm/'
+    else:
+        path = '/home/ubuntu/matt/courses/deeplearning1/nbs/data/statefarm/'
+    direct_list = ['valid/'+x[0].split('/')[-1] for x in os.walk(path+'train/') if x[0].split('/')[-1] != '']
+    direct_list.insert(0, "valid")
+    for directory in direct_list:
+        if not os.path.exists(path+directory):
+            os.makedirs(path+directory)
+    dil = pd.read_csv(path + 'driver_imgs_list.csv')
+    valid_subjects = dil.groupby(['subject']).size().sample(frac=validation_frac).keys().tolist()
+    valid_frame = dil[dil['subject'].isin(valid_subjects)]
+    for (subject, classname, img) in valid_frame.values:
+        source = '{}train/{}/{}'.format(path, classname, img)
+        target = source.replace('train', 'valid')
+        print('mv {} {}'.format(source, target))
+        os.rename(source, target)
+
+def rm_sample_set(local=False):
+    if local:
+        path = '/Users/matthew.negrin/deeplearning/courses/deeplearning1/nbs/data/statefarm/'
+    else:
+        path = '/home/ubuntu/matt/courses/deeplearning1/nbs/data/statefarm/'
+    rmtree(path+'sample/')
+        
+def mn_sample(local=False):
+    if local:
+        path = '/Users/matthew.negrin/deeplearning/courses/deeplearning1/nbs/data/statefarm/'
+    else:
+        path = '/home/ubuntu/matt/courses/deeplearning1/nbs/data/statefarm/'
+    os.makedirs(path+'sample')
+    os.makedirs(path+'sample/train')
+    os.makedirs(path+'sample/valid')
+    os.makedirs(path+'sample/models')
+    os.makedirs(path+'sample/results')
+    direct_list = [x[0].split('/')[-1] for x in os.walk(path+'train/') if x[0].split('/')[-1] != '']
+    for d in direct_list:
+        os.makedirs(path+'sample/train/'+d)
+        os.mkdir(path+'sample/valid/'+d)
+    tg = glob(path+'train/c?/*.jpg')
+    shuf = np.random.permutation(tg)
+    for i in range(1500): copyfile(shuf[i],path+'sample/train/' + shuf[i].split('/')[-2]+'/'+shuf[i].split('/')[-1])
+    vg = glob(path+'valid/c?/*.jpg')
+    vshuf = np.random.permutation(vg)
+    for i in range(1000): copyfile(vshuf[i],path+'sample/valid/' + vshuf[i].split('/')[-2]+'/'+vshuf[i].split('/')[-1])    
 
 vgg_mean = np.array([123.68, 116.779, 103.939], dtype=np.float32).reshape((3,1,1))
 def vgg_preprocess(x):
